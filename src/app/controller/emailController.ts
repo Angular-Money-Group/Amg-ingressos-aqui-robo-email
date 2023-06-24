@@ -14,10 +14,12 @@ export class EmailController {
     try {
       var emailTemplate: any = await emailService.getEmailbyID(
         req.body.emailID
-      );
+      ).catch(err => {
+        throw new Error("Template não encontrado");
+      });
 
       if (!emailTemplate) {
-        throw new Error("Sem template");
+        throw new Error("Template não encontrado");
       }
 
       await emailService
@@ -25,7 +27,7 @@ export class EmailController {
         .then((o) => {
           return successResponse(res, o);
         })
-        .catch((err) => {
+        .catch((err: any) => {
           return internalServerErrorResponse(res, err.message);
         });
     } catch (err: any) {

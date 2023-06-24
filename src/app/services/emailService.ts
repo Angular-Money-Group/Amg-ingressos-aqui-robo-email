@@ -16,12 +16,10 @@ export class EmailService {
 
   async getEmailbyID(emailId: string): Promise<any> {
     try {
-      return await _emailRepository.Find(emailId).then((res) => {
-        return res;
-      });
+      return await _emailRepository.Find(emailId);
     } catch (error) {
-      Logger.fatalLog("Email não enviado: " + error);
-      return Promise.reject();
+      Logger.fatalLog("Email não encontrado: " + error);
+      return Promise.reject(error);
     }
   }
 
@@ -45,17 +43,20 @@ export class EmailService {
       };
 
       Logger.infoLog("Enviando email");
-      return this.transporter
+      this.transporter
         .sendMail(options)
         .then(() => {
           Logger.infoLog("Email enviado");
+          return Promise.resolve();
         })
         .catch((err) => {
           Logger.errorLog("Email não enviado: " + err);
-          throw err;
+          Promise.reject(err);
         });
-    } catch (error) {
+    } catch (error: any) {
       Logger.fatalLog("Email não enviado: " + error);
+      Promise.reject(error);
+      throw error;
     }
   }
 }
